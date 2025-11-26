@@ -17,6 +17,7 @@
     "help": {
       "label": "Help",
       "preferences": "Preferences",
+      "switchTheme": "Switch Theme",
       "checkUpdates": "Check For Updates",
       "reportIssue": "Report Issue",
       "viewLog": "View Log",
