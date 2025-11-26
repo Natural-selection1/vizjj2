@@ -17,6 +17,7 @@
     "help": {
       "label": "帮助",
       "preferences": "偏好设置",
+      "switchTheme": "切换主题",
       "checkUpdates": "检查更新",
       "reportIssue": "报告问题",
       "viewLog": "查看日志",
