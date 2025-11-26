@@ -1,5 +1,6 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import TitleBar from "./components/title_bar";
+import RevsetTable from "./components/revset_table";
 import "./App.css";
 
 export default function App() {
@@ -33,7 +34,9 @@ export default function App() {
                     <ResizablePanel
                         defaultSize={60}
                         minSize={20}
-                        className="bg-background text-foreground flex flex-col"></ResizablePanel>
+                        className="bg-background text-foreground flex flex-col">
+                        <RevsetTable />
+                    </ResizablePanel>
 
                     <ResizableHandle className="bg-border hover:bg-sidebar transition-colors" />
 
