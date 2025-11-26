@@ -1,5 +1,8 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
+mod ipc_commands;
+mod ts_rs_bindings;
+
 #[allow(unused_imports)]
 use log::{debug, info};
 use serde_json::json;
@@ -25,6 +28,7 @@ pub fn run() {
         .plugin(init_log_subscriber().build())
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![ipc_commands::get_commits])
         .setup(|app| {
             let defaults = std::collections::HashMap::from_iter([
                 ("theme".to_string(), json!("system")),
