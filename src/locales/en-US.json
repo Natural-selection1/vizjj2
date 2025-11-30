@@ -1,0 +1,28 @@
+{
+  "window": {
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "close": "Close"
+  },
+  "menu": {
+    "repo": {
+      "label": "Repo",
+      "clone": "Clone Repo",
+      "init": "Init Repo",
+      "open": "Open Repo",
+      "openInEditor": "Open Repo In Editor",
+      "openInFileExplorer": "Open Repo In File Explorer",
+      "openTerminal": "Open Terminal In Repo Path"
+    },
+    "help": {
+      "label": "Help",
+      "preferences": "Preferences",
+      "checkUpdates": "Check For Updates",
+      "reportIssue": "Report Issue",
+      "viewLog": "View Log",
+      "about": "About",
+      "documentation": "Documentation",
+      "followUs": "Follow Us On GitHub"
+    }
+  }
+}
