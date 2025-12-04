@@ -6,12 +6,12 @@ function App() {
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden bg-sidebar">
             {/* 1. Titlebar */}
-            <div className="h-[33px] w-full shrink-0 border-b border-border">
+            <div className="h-9 w-full shrink-0 border-b border-border">
                 <TitleBar />
             </div>
 
             {/* 2. Operation Bar */}
-            <div className="h-[70px] w-full shrink-0 bg-sidebar text-sidebar-foreground border-b border-sidebar-border flex items-center justify-center">
+            <div className="h-18 w-full shrink-0 bg-sidebar text-sidebar-foreground border-b border-sidebar-border flex items-center justify-center">
                 <span className="font-bold">Operation Bar</span>
             </div>
 
@@ -48,7 +48,7 @@ function App() {
             </div>
 
             {/* 4. Bottom Bar */}
-            <div className="h-[35px] w-full shrink-0 bg-sidebar text-sidebar-foreground flex items-center justify-center">
+            <div className="h-9 w-full shrink-0 bg-sidebar text-sidebar-foreground flex items-center justify-center">
                 <span className="font-bold">Bottom Bar</span>
             </div>
         </div>
