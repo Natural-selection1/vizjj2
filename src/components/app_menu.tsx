@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/menubar";
 import { useTranslation } from "react-i18next";
 import { info, error } from "@tauri-apps/plugin-log";
-import { useTheme } from "./theme_provider";
+import { useTheme } from "./provider/theme_provider";
 import { open } from "@tauri-apps/plugin-dialog";
 import { getSettingsStore } from "../lib/store";
 
@@ -16,43 +16,10 @@ export default function AppMenu() {
     const { t } = useTranslation();
     const { theme, setTheme } = useTheme();
 
-    const logAction = (action: string) => {
-        info(`Menu action triggered: ${action}`);
-    };
-
-    const handleOpenRepo = async () => {
-        logAction("Open Repo");
-        try {
-            const selected = await open({
-                directory: true,
-                multiple: false,
-            });
-
-            if (selected) {
-                const store = await getSettingsStore();
-                await store.set("repo_path", selected);
-                info(`Repo path updated to: ${selected}`);
-            }
-        } catch (err) {
-            error(`Failed to open repo dialog: ${err}`);
-        }
-    };
-
-    const handleThemeToggle = () => {
-        if (theme === "system") {
-            const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            setTheme(isDark ? "light" : "dark");
-        } else if (theme === "dark") {
-            setTheme("light");
-        } else {
-            setTheme("dark");
-        }
-    };
-
     return (
         <div className="flex h-full items-center no-drag">
-            {/* Repo Menu */}
             <Menubar className="border-none shadow-none bg-transparent h-auto p-0 space-x-1">
+                {/* Repo Menu */}
                 <MenubarMenu>
                     <MenubarTrigger>{t("menu.repo.label")}</MenubarTrigger>
                     <MenubarContent>
@@ -109,4 +76,37 @@ export default function AppMenu() {
             </Menubar>
         </div>
     );
+
+    function handleThemeToggle() {
+        if (theme === "system") {
+            const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            setTheme(isDark ? "light" : "dark");
+        } else if (theme === "dark") {
+            setTheme("light");
+        } else {
+            setTheme("dark");
+        }
+    }
+
+    async function handleOpenRepo() {
+        logAction("Open Repo");
+        try {
+            const selected = await open({
+                directory: true,
+                multiple: false,
+            });
+
+            if (selected) {
+                const store = await getSettingsStore();
+                await store.set("repo_path", selected);
+                info(`Repo path updated to: ${selected}`);
+            }
+        } catch (err) {
+            error(`Failed to open repo dialog: ${err}`);
+        }
+    }
+
+    function logAction(action: string) {
+        info(`Menu action triggered: ${action}`);
+    }
 }

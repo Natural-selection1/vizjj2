@@ -7,7 +7,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-left: 4px;
 }
 
 .titlebar-menu {
@@ -26,7 +25,7 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 45px;
+    width: 2.5rem;
     height: 100%;
     aspect-ratio: 1;
     padding: 0;
@@ -52,6 +51,6 @@
 }
 
 .titlebar-button svg {
-    width: 18px;
-    height: 18px;
+    width: 1.2rem;
+    height: 1.2rem;
 }

@@ -26,9 +26,10 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            let mut defaults = std::collections::HashMap::new();
-            defaults.insert("theme".to_string(), json!("system"));
-
+            let defaults = std::collections::HashMap::from_iter([
+                ("theme".to_string(), json!("system")),
+                ("font_size".to_string(), json!(18)),
+            ]);
             let _ = tauri_plugin_store::StoreBuilder::new(app, "vizjj-settings.json")
                 .defaults(defaults)
                 .build()?
