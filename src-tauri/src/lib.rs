@@ -1,5 +1,8 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
+mod bindings;
+mod ipc_commands;
+
 use std::collections::HashMap;
 
 #[allow(unused_imports)]
@@ -27,6 +30,7 @@ pub fn run() {
         .plugin(init_log_subscriber().build())
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![ipc_commands::get_commits])
         .setup(|app| {
             tauri_plugin_store::StoreBuilder::new(app, "vizjj-settings.json")
                 .defaults(HashMap::from_iter([
