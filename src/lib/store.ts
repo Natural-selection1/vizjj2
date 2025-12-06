@@ -1,18 +1,10 @@
-import { Store } from "@tauri-apps/plugin-store";
+import { Store, getStore } from "@tauri-apps/plugin-store";
 
 const STORE_PATH = "vizjj-settings.json";
 
-let store: Store | null = null;
-
-/**
- * 获取设置 Store 的实例
- * 如果尚未加载，则进行加载
- */
-export async function getSettingsStore(): Promise<Store> {
-    if (store) {
-        return store;
-    }
-
-    store = await Store.load(STORE_PATH);
+export async function get_settings_store(): Promise<Store> {
+    // !SAFETY: we have already load it in lib.rs
+    const store = await getStore(STORE_PATH);
+    if (!store) throw new Error("Settings store not found");
     return store;
 }

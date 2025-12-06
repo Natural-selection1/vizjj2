@@ -1,78 +1,49 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { getSettingsStore } from "@/lib/store";
+import { get_settings_store } from "@/lib/store";
 
 type Theme = "dark" | "light" | "system";
-
-type ThemeProviderProps = {
-    children: React.ReactNode;
-    defaultTheme?: Theme;
-    storageKey?: string;
-};
-
 type ThemeProviderState = {
     theme: Theme;
-    setTheme: (theme: Theme) => void;
+    apply_theme: (theme: Theme) => void;
 };
 
-const initialState: ThemeProviderState = {
-    theme: "system",
-    setTheme: () => null,
-};
+const DARK_THEME = "dark";
+const LIGHT_THEME = "light";
+const SYSTEM_THEME = "system";
+const SETTINGS_KEY = "theme";
+const ThemeProviderContext = createContext<ThemeProviderState | null>(null);
 
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
+export function use_theme_context(): ThemeProviderState {
+    const context = useContext(ThemeProviderContext);
+    if (!context) throw new Error("use_theme_context must be used within a ThemeProvider");
+    return context;
+}
 
-export function ThemeProvider({
-    children,
-    defaultTheme = "system",
-    storageKey = "theme",
-    ...props
-}: ThemeProviderProps) {
-    // 使用 null 表示初始加载状态
-    const [theme, setThemeState] = useState<Theme | null>(null);
-
-    // 使用 ref 跟踪是否为首次渲染
-    const isFirstRender = useRef(true);
-
-    // 初始化加载
-    useEffect(() => {
-        async function initTheme() {
-            try {
-                const store = await getSettingsStore();
-                const savedTheme = await store.get<Theme>(storageKey);
-
-                if (savedTheme) {
-                    setThemeState(savedTheme);
-                } else {
-                    setThemeState(defaultTheme);
-                }
-            } catch (error) {
-                console.error("Failed to load theme from store:", error);
-                setThemeState(defaultTheme);
-            }
-        }
-        initTheme();
-    }, [defaultTheme, storageKey]);
+export function ThemeProvider({ children, ...props }: { children: React.ReactNode }) {
+    const [theme, set_theme] = useState<Theme | null>(null);
+    const is_first_render = useRef(true);
 
     useEffect(() => {
-        if (!theme) return; // 还在加载中，不执行副作用
+        init_theme();
+    }, []);
 
+    useEffect(() => {
+        if (!theme) return;
         const root = window.document.documentElement;
 
-        // 如果是首次渲染，不添加过渡动画类，避免加载时的动画
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
+        if (is_first_render.current) {
+            is_first_render.current = false;
         } else {
             root.classList.add("theme-transition");
         }
 
         root.classList.remove("light", "dark");
 
-        if (theme === "system") {
-            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "dark"
-                : "light";
-
-            root.classList.add(systemTheme);
+        if (theme === SYSTEM_THEME) {
+            const system_theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? DARK_THEME
+                : LIGHT_THEME;
+            root.classList.add(system_theme);
         } else {
             root.classList.add(theme);
         }
@@ -84,38 +55,25 @@ export function ThemeProvider({
         return () => clearTimeout(timeout);
     }, [theme]);
 
-    const setTheme = async (newTheme: Theme) => {
-        setThemeState(newTheme);
-
-        try {
-            const store = await getSettingsStore();
-            await store.set(storageKey, newTheme);
-        } catch (error) {
-            console.error("Failed to save theme to store:", error);
-        }
-    };
-
-    const value = {
-        theme: theme || defaultTheme,
-        setTheme,
-    };
-
-    // 阻止闪烁：如果 theme 还是 null，说明还没读取完配置，暂不渲染
-    if (theme === null) {
-        return null;
-    }
+    // prevent theme flashing
+    if (!theme) return;
 
     return (
-        <ThemeProviderContext.Provider {...props} value={value}>
+        <ThemeProviderContext.Provider {...props} value={{ theme, apply_theme }}>
             {children}
         </ThemeProviderContext.Provider>
     );
-}
 
-export function useTheme() {
-    const context = useContext(ThemeProviderContext);
+    async function apply_theme(new_theme: Theme) {
+        set_theme(new_theme);
+        const store = await get_settings_store();
+        await store.set(SETTINGS_KEY, new_theme);
+    }
 
-    if (context === undefined) throw new Error("useTheme must be used within a ThemeProvider");
-
-    return context;
+    async function init_theme(): Promise<void> {
+        const store = await get_settings_store();
+        const saved_theme = await store.get<Theme>(SETTINGS_KEY);
+        if (!saved_theme) throw new Error("Theme not found in store");
+        set_theme(saved_theme);
+    }
 }

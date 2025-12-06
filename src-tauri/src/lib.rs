@@ -1,5 +1,7 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
+use std::collections::HashMap;
+
 #[allow(unused_imports)]
 use log::{debug, info};
 use serde_json::json;
@@ -26,15 +28,15 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            let defaults = std::collections::HashMap::from_iter([
-                ("theme".to_string(), json!("system")),
-                ("font_size".to_string(), json!(18)),
-            ]);
-            let _ = tauri_plugin_store::StoreBuilder::new(app, "vizjj-settings.json")
-                .defaults(defaults)
-                .build()?
-                .save();
-
+            tauri_plugin_store::StoreBuilder::new(app, "vizjj-settings.json")
+                .defaults(HashMap::from_iter([
+                    ("theme".into(), json!("system")),
+                    ("font_size".into(), json!(18)),
+                ]))
+                .build()
+                .expect("failed to build settings store")
+                .save()
+                .expect("failed to save settings");
             Ok(())
         })
         .run(tauri::generate_context!())

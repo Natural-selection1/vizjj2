@@ -1,123 +1,61 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getSettingsStore } from "@/lib/store";
-
-type FontSizeProviderProps = {
-    children: React.ReactNode;
-    defaultFontSize?: number;
-    storageKey?: string;
-};
+import { get_settings_store } from "@/lib/store";
 
 type FontSizeProviderState = {
-    fontSize: number;
-    rowHeight: number;
-    colWidth: number;
-    paddingLeft: number;
-    setFontSize: (size: number) => void;
+    font_size: number;
+    row_height: number;
+    col_width: number;
+    padding_left: number;
+    apply_font_size: (size: number) => void;
 };
 
-// Initial state with defaults based on 16px
-const initialState: FontSizeProviderState = {
-    fontSize: 18,
-    rowHeight: 32,
-    colWidth: 22,
-    paddingLeft: 11,
-    setFontSize: () => null,
-};
+const SETTINGS_KEY = "font_size";
+const FontSizeContext = createContext<FontSizeProviderState | null>(null);
 
-const FontSizeContext = createContext<FontSizeProviderState>(initialState);
+export function use_font_size_context() {
+    const context = useContext(FontSizeContext);
+    if (!context) throw new Error("use_font_size_context must be used within a FontSizeProvider");
+    return context;
+}
 
-export function FontSizeProvider({
-    children,
-    defaultFontSize = 18,
-    storageKey = "font_size",
-    ...props
-}: FontSizeProviderProps) {
-    const [fontSize, setFontSizeState] = useState<number | null>(null);
+export function FontSizeProvider({ children, ...props }: { children: React.ReactNode }) {
+    const [font_size, set_font_size] = useState<number | null>(null);
 
     useEffect(() => {
-        async function initFontSize() {
-            try {
-                const store = await getSettingsStore();
-                const savedSize = await store.get<number>(storageKey);
-
-                if (savedSize) {
-                    setFontSizeState(savedSize);
-                } else {
-                    setFontSizeState(defaultFontSize);
-                }
-            } catch (error) {
-                console.error("Failed to load font size from store:", error);
-                setFontSizeState(defaultFontSize);
-            }
-        }
-        initFontSize();
-    }, [defaultFontSize, storageKey]);
+        init_font_size();
+    }, []);
 
     useEffect(() => {
-        if (!fontSize) return;
-
+        if (!font_size) return;
         const root = window.document.documentElement;
-        root.style.fontSize = `${fontSize}px`;
+        root.style.fontSize = `${font_size}px`;
+    }, [font_size]);
 
-        // We can also potentially save to store here if it changed and wasn't just loaded
-    }, [fontSize]);
+    // prevent font size flashing
+    if (!font_size) return;
 
-    const setFontSize = async (newSize: number) => {
-        setFontSizeState(newSize);
-        try {
-            const store = await getSettingsStore();
-            await store.set(storageKey, newSize);
-        } catch (error) {
-            console.error("Failed to save font size to store:", error);
-        }
-    };
-
-    // Calculate derived metrics
-    // Using ratios based on original design (approx 30/16, 20/16)
-    // Adjusting slightly to fit the requested default of 18 being standard
-    // Original: 30px height for text-sm (14px). Ratio ~2.14.
-    // Let's use 1.8 multiplier for height relative to font size (e.g. 18px -> 32px)
-    const currentSize = fontSize || defaultFontSize;
-
-    // We want the row height to be comfortable.
-    // If fontSize is 18px, text height is ~18px (plus line-height).
-    // Let's try multiplier 1.8 -> 32.4
-    const rowHeight = Math.round(currentSize * 2);
-    const colWidth = Math.round(currentSize * 1.2);
-    const paddingLeft = Math.round(currentSize * 0.6);
-
-    const value = {
-        fontSize: currentSize,
-        rowHeight,
-        colWidth,
-        paddingLeft,
-        setFontSize,
-    };
-
-    if (fontSize === null) {
-        // Optionally return null or a loading state, or just render with default
-        // Returning children with default prevents flash if default is correct
-        // But might cause flash if stored is different.
-        // ThemeProvider returned null. Let's return null to be safe?
-        // But that delays startup.
-        // Since we have a default (18), maybe just render.
-        // But if saved is 24, we flash 18 then 24.
-        // Let's return null.
-        return null;
-    }
+    const row_height = Math.round(font_size * 2);
+    const col_width = Math.round(font_size * 1.2);
+    const padding_left = Math.round(font_size * 0.6);
 
     return (
-        <FontSizeContext.Provider {...props} value={value}>
+        <FontSizeContext.Provider
+            {...props}
+            value={{ font_size, row_height, col_width, padding_left, apply_font_size }}>
             {children}
         </FontSizeContext.Provider>
     );
-}
 
-export function useFontSize() {
-    const context = useContext(FontSizeContext);
+    async function apply_font_size(new_size: number) {
+        set_font_size(new_size);
+        const store = await get_settings_store();
+        await store.set(SETTINGS_KEY, new_size);
+    }
 
-    if (context === undefined)
-        throw new Error("useFontSize must be used within a FontSizeProvider");
-
-    return context;
+    async function init_font_size() {
+        const store = await get_settings_store();
+        const saved_font_size = await store.get<number>(SETTINGS_KEY);
+        if (!saved_font_size) throw new Error("Font size not found in store");
+        set_font_size(saved_font_size);
+    }
 }

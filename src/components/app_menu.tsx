@@ -8,13 +8,13 @@ import {
 } from "@/components/ui/menubar";
 import { useTranslation } from "react-i18next";
 import { info, error } from "@tauri-apps/plugin-log";
-import { useTheme } from "./provider/theme_provider";
+import { use_theme_context } from "./provider/theme_provider";
 import { open } from "@tauri-apps/plugin-dialog";
-import { getSettingsStore } from "../lib/store";
+import { get_settings_store } from "../lib/store";
 
 export default function AppMenu() {
     const { t } = useTranslation();
-    const { theme, setTheme } = useTheme();
+    const { theme, apply_theme } = use_theme_context();
 
     return (
         <div className="flex h-full items-center no-drag">
@@ -23,20 +23,20 @@ export default function AppMenu() {
                 <MenubarMenu>
                     <MenubarTrigger>{t("menu.repo.label")}</MenubarTrigger>
                     <MenubarContent>
-                        <MenubarItem onClick={() => logAction("Clone Repo")}>
+                        <MenubarItem onClick={() => log_action("Clone Repo")}>
                             {t("menu.repo.clone")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => logAction("Init Repo")}>
+                        <MenubarItem onClick={() => log_action("Init Repo")}>
                             {t("menu.repo.init")}
                         </MenubarItem>
-                        <MenubarItem onClick={handleOpenRepo}>{t("menu.repo.open")}</MenubarItem>
-                        <MenubarItem onClick={() => logAction("Open Repo In Editor")}>
+                        <MenubarItem onClick={open_repo}>{t("menu.repo.open")}</MenubarItem>
+                        <MenubarItem onClick={() => log_action("Open Repo In Editor")}>
                             {t("menu.repo.openInEditor")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => logAction("Open Repo In File Explorer")}>
+                        <MenubarItem onClick={() => log_action("Open Repo In File Explorer")}>
                             {t("menu.repo.openInFileExplorer")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => logAction("Open Terminal In Repo Path")}>
+                        <MenubarItem onClick={() => log_action("Open Terminal In Repo Path")}>
                             {t("menu.repo.openTerminal")}
                         </MenubarItem>
                     </MenubarContent>
@@ -46,29 +46,29 @@ export default function AppMenu() {
                 <MenubarMenu>
                     <MenubarTrigger>{t("menu.help.label")}</MenubarTrigger>
                     <MenubarContent>
-                        <MenubarItem onClick={() => logAction("Preferences")}>
+                        <MenubarItem onClick={() => log_action("Preferences")}>
                             {t("menu.help.preferences")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => handleThemeToggle()}>
+                        <MenubarItem onClick={() => toggle_theme()}>
                             {t("menu.help.switchTheme")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => logAction("Check For Updates")}>
+                        <MenubarItem onClick={() => log_action("Check For Updates")}>
                             {t("menu.help.checkUpdates")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => logAction("Report Issue")}>
+                        <MenubarItem onClick={() => log_action("Report Issue")}>
                             {t("menu.help.reportIssue")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => logAction("View Log")}>
+                        <MenubarItem onClick={() => log_action("View Log")}>
                             {t("menu.help.viewLog")}
                         </MenubarItem>
                         <MenubarSeparator />
-                        <MenubarItem onClick={() => logAction("About")}>
+                        <MenubarItem onClick={() => log_action("About")}>
                             {t("menu.help.about")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => logAction("Documentation")}>
+                        <MenubarItem onClick={() => log_action("Documentation")}>
                             {t("menu.help.documentation")}
                         </MenubarItem>
-                        <MenubarItem onClick={() => logAction("Follow Us On GitHub")}>
+                        <MenubarItem onClick={() => log_action("Follow Us On GitHub")}>
                             {t("menu.help.followUs")}
                         </MenubarItem>
                     </MenubarContent>
@@ -77,19 +77,19 @@ export default function AppMenu() {
         </div>
     );
 
-    function handleThemeToggle() {
+    function toggle_theme() {
         if (theme === "system") {
             const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            setTheme(isDark ? "light" : "dark");
+            apply_theme(isDark ? "light" : "dark");
         } else if (theme === "dark") {
-            setTheme("light");
+            apply_theme("light");
         } else {
-            setTheme("dark");
+            apply_theme("dark");
         }
     }
 
-    async function handleOpenRepo() {
-        logAction("Open Repo");
+    async function open_repo() {
+        log_action("Open Repo");
         try {
             const selected = await open({
                 directory: true,
@@ -97,7 +97,7 @@ export default function AppMenu() {
             });
 
             if (selected) {
-                const store = await getSettingsStore();
+                const store = await get_settings_store();
                 await store.set("repo_path", selected);
                 info(`Repo path updated to: ${selected}`);
             }
@@ -106,7 +106,7 @@ export default function AppMenu() {
         }
     }
 
-    function logAction(action: string) {
+    function log_action(action: string) {
         info(`Menu action triggered: ${action}`);
     }
 }

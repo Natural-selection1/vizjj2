@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import AppMenu from "./app_menu";
 
 export default function TitleBar() {
-    const appWindow = new Window("main");
+    const app_window = new Window("main");
     const { t } = useTranslation();
 
     return (
@@ -22,7 +22,7 @@ export default function TitleBar() {
                         <button
                             className="titlebar-button"
                             onClick={() => {
-                                appWindow.minimize();
+                                app_window.minimize();
                             }}>
                             <Minimize />
                         </button>
@@ -36,7 +36,7 @@ export default function TitleBar() {
                         <button
                             className="titlebar-button"
                             onClick={() => {
-                                appWindow.toggleMaximize();
+                                app_window.toggleMaximize();
                             }}>
                             <Maximize />
                         </button>
@@ -51,7 +51,7 @@ export default function TitleBar() {
                             className="titlebar-button"
                             id="close"
                             onClick={() => {
-                                appWindow.close();
+                                app_window.close();
                             }}>
                             <X />
                         </button>

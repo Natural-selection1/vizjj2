@@ -2,7 +2,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import TitleBar from "./components/title_bar";
 import "./App.css";
 
-function App() {
+export default function App() {
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden bg-sidebar">
             {/* 1. Titlebar */}
@@ -54,5 +54,3 @@ function App() {
         </div>
     );
 }
-
-export default App;
